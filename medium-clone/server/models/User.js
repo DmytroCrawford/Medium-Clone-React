@@ -1,44 +1,37 @@
-const mongoose = require("mongoose")
+const mongoose = require('mongoose')
 
-let ArticleSchema = new mongoose.Schema(
+let UserSchema = new mongoose.Schema(
     {
-        text: String,
-        title: String,
-        description: String,
-        feature_img: String,
-        claps: Number,
-        author: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
-        },
-        comments: [
+        name: String,
+        email: String,
+        provider: String,
+        provider_id: String,
+        token: String,
+        provider_pic: String,
+        followers: [
             {
-                author: {
-                    type: mongoose.Schema.Types.ObjectId,
-                    ref: 'User'
-                },
-            text: String
-
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User'
+            }
+        ],
+        following: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User'
         }
     ]
 
 }
-);
-ArticleSchema.methods.claps = function() {
-    this.claps++
+)
+UserSchema.methods.follow = function (user_id) {
+    if (this.following.indexOf(user_id) === -1){
+        this.following.push(user_id)
+    }
     return this.save()
 }
-ArticleSchema.method.comments = function() {
-    this.comments.push(c)
-    return this.save()
+
+UserSchema.methods.addFollower = function(fs) {
+    this.following.push(fs)
 }
-ArticleSchema.methods.addAuthor = function() {
-    this.author = author_id
-    return this.save()
-}
-ArticleSchema.method.getUserArticle = function(_id) {
-    Article.find({'author': _id}).then((article) => {
-        return article
-    })
-}
-module.exports = mongoose.model('Article', ArticleSchema)
+
+module.exports =  mongoose.model('User', UserSchema)
