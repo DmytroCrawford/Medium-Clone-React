@@ -1,88 +1,50 @@
-const Article = require('./../models/Article')
 const User = require('./../models/User')
-const fs = require('fs')
-const cloudinary = require('cloudinary')
+const Article = require('./../models/Article')
 
 module.exports = {
-    addAricle: (req, res, next) => {
-        let { text, title, claps, description } = req.body
-        if (req.files.image) {
-            cloudinary.uploader.upload(req.files.image.path, (result) => {
-                let obj = {text, title, claps, description, feature_img: result.url != null ? result.url : ''}
-                saveArticle(obj)
-            },{
-                resource_type: 'image',
-                eager: [
-                    {effects = 'serpia'}
-                ]
-            }
-            )
-        } else {
-            saveArticle({ text, titel, claps, description, feature_img: ''})
-        }
-        function saveArticle(obj) {
-            new Article(obj).save((err, article) => {
-                if (err) {
-                    res.send(err)
-                }
-                else if (!article) {
-                    res.send(400)
-                }
-                else {
-                    return article.addAuthor(req.body.author_id).then((_article) => { return res.send(_article)})
-                }
-                next()
-            })
-        }
-    },
-    getAll: (req, res, next) => {
-        Article.find(req.params.id)
-        .populate('author')
-        .populate('comments.author').exec((err, article) => {
-            if (err) {
+    addUser: (req, res, next) => {
+        new User(req.body).save((err, newUser) => {
+            if (err){
                 res.send(err)
-            }
-            else if (!article) {
+            } else if (!newUser){
                 res.send(400)
-            }
-            else {
-                res.send(article)
-                next()
-            }
-        })
-    },
-    clapArticle: (req, res, next) => {
-        Article.findById(req.body.article_id).then((article) => {
-            return article.clap().then(() => {
-                return res.json({msg:"Done"})
-            })
-        }).catch(next)
-    },
-    commentArticle: (req, res, next) => {
-        Article.findById(req.body.article_id).then((article) => {
-            return article.comment({
-                author: req.body.author_id,
-                text: req.body.comment
-            }).then(() => {
-                return res.json({msg:"Done"})
-            })
-        }).catch(next)
-    },
-    getArticle: (req, res, next) => {
-        Article.findById(req.params.id)
-        .populate('author')
-        .populate('comments.author').exec((err, article) => {
-            if (err) {
-            res.send(err)
-        }
-        else if (!article) {
-            res.send(400)
-        }
-        else {
-            res.send(article)
+            } else {
+                res.send(newUser)
             next()
-        }
+            }
         })
+    },
+    getUser: (req, res, next) => {
+        User.findById(req.param.id).then
+            ((err, user)=> {
+                if (err){
+                    res.send(err)
+                }else if (!user){
+                    res.send(404)
+                }else{
+                    res.send(user)
+                    next() 
+                } 
+        })
+    },
+    followUser: (req, res, next) => {
+        User.findById(req.body.id).then((user) => {
+            return user.follow(req.body.user_id).then(() => {
+                return res.json({msg: "followed"})
+            })
+        }).catch(next)
+    },
+    getUserProfile: (req, res, next) => {
+        User.findById(req.params.id).then
+        ((_user) => {
+            return User.find({'following': req.params.id}).then((_users)=>{
+                _users.forEach((user_)=>{
+                    _user.addFollower(user_)
+                })
+                return Article.find({'author': req.params.id}).then((_articles)=> {
+                    return res.json({ user: _user, articles: _articles })
+                })
+            })
+        }).catch((err)=>console.log(err))
     }
-
 }
