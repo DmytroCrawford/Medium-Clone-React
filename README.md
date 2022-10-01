@@ -3,7 +3,7 @@ A clone of the popular blogging website Medium utilizing React and other full st
 
 ##Technologies Used
 
-###Server Dependencies 
+### Server Dependencies 
 mongoose
 cloudinary
 helmet
@@ -13,7 +13,7 @@ connect-multiparty
 body-parser
 compression
 
-###Front End Dependecies
+### Front End Dependecies
 Axios
 history
 prop-types
