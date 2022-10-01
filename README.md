@@ -1,7 +1,7 @@
 # Medium Clone React
 A clone of the popular blogging website Medium utilizing React and other full stack frameworks and libraries.
 
-##Technologies Used
+## Technologies Used
 
 ### Server Dependencies 
 mongoose
