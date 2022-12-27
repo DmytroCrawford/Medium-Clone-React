@@ -29,3 +29,5 @@ redux-logger
 redux-thunk
 medium-editor
 marked
+
+*Deprecated*
